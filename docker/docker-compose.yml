@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: devops-postgres
+    environment:
+      POSTGRES_DB: devops_db
+      POSTGRES_USER: devops_user
+      POSTGRES_PASSWORD: devops_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  postgres_data:
+    name: devops-project-postgres-data
