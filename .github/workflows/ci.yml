@@ -64,4 +64,4 @@ jobs:
 
       - name: Run API tests
         run: |
-          pytest backend/tests/test_api.py -v
+          python -m pytest backend/tests/test_api.py -v
