@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Date
-from backend.app.database import Base
+from .database import Base
 
 
 class Application(Base):

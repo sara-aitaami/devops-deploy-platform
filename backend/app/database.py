@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
 
-DATABASE_URL = "postgresql+psycopg://devops_user:devops_password@localhost:5432/devops_db"
+DATABASE_URL = "postgresql+psycopg://devops_user:devops_password@postgres:5432/devops_db"
 
 engine = create_engine(DATABASE_URL)
 

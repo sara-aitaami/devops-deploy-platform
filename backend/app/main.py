@@ -4,9 +4,9 @@ from fastapi import FastAPI
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.database import engine
-from backend.app.models import Application
-from backend.app.schemas import (
+from .database import engine
+from .models import Application
+from .schemas import (
     ApplicationCreate,
     ApplicationResponse,
     ApplicationUpdate,

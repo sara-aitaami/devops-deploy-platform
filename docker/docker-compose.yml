@@ -12,6 +12,16 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ../database/init.sql:/docker-entrypoint-initdb.d/init.sql
 
+  api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: devops-api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:
     name: devops-project-postgres-data
