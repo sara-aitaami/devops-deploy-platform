@@ -17,6 +17,8 @@ services:
       context: ../backend
       dockerfile: Dockerfile
     container_name: devops-api
+    environment:
+        DATABASE_URL: postgresql+psycopg://devops_user:devops_password@postgres:5432/devops_db
     ports:
       - "8000:8000"
     depends_on:
