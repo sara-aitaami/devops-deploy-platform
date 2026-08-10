@@ -43,6 +43,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
+          pip install pytest httpx
 
       - name: Install PostgreSQL client
         run: |
@@ -60,3 +61,7 @@ jobs:
       - name: Run database test
         run: |
           python -m backend.app.test_database
+
+      - name: Run API tests
+        run: |
+          pytest backend/tests/test_api.py -v
