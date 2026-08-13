@@ -65,3 +65,17 @@ jobs:
       - name: Run API tests
         run: |
           python -m pytest backend/tests/test_api.py -v
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t devops-api:ci \
+            ./backend
