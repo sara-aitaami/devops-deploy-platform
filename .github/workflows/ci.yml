@@ -110,16 +110,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v4
+      - name: Set up Kubeconform
+        uses: bmuschko/setup-kubeconform@v1
         with:
-          version: "v1.34.1"
+          kubeconform-version: 0.8.0
 
       - name: Validate Kubernetes manifests
         run: |
-          kubectl apply --dry-run=client -f kubernetes/namespace.yaml
-          kubectl apply --dry-run=client -f kubernetes/postgres-secret.yaml
-          kubectl apply --dry-run=client -f kubernetes/api-config.yaml
-          kubectl apply --dry-run=client -f kubernetes/api-secret.yaml
-          kubectl apply --dry-run=client -f kubernetes/postgres.yaml
-          kubectl apply --dry-run=client -f kubernetes/api.yaml
+          kubeconform \
+            -strict \
+            -summary \
+            kubernetes/*.yaml
