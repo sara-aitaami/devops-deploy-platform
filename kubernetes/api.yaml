@@ -5,18 +5,22 @@ metadata:
   namespace: devops
 spec:
   replicas: 1
+
   selector:
     matchLabels:
       app: devops-api
+
   template:
     metadata:
       labels:
         app: devops-api
+
     spec:
       containers:
         - name: devops-api
           image: ghcr.io/sara-aitaami/devops-deploy-platform:latest
           imagePullPolicy: Always
+
           ports:
             - containerPort: 8000
 
@@ -87,21 +91,10 @@ metadata:
 spec:
   selector:
     app: devops-api
-  ports:
-    - port: 8000
-      targetPort: 8000
-  type: NodePort
 
-apiVersion: v1
-kind: Service
-metadata:
-  name: devops-api
-  namespace: devops
-spec:
-  selector:
-    app: devops-api
   ports:
     - port: 8000
       targetPort: 8000
       nodePort: 30080
+
   type: NodePort
