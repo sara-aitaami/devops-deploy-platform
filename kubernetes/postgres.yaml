@@ -69,6 +69,15 @@ spec:
             - name: postgres-init
               mountPath: /docker-entrypoint-initdb.d/init.sql
               subPath: init.sql
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+
           readinessProbe:
             exec:
               command:
@@ -79,6 +88,9 @@ spec:
                 - devops_db
             initialDelaySeconds: 5
             periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 6
+
           livenessProbe:
             exec:
               command:
@@ -87,8 +99,11 @@ spec:
                 - devops_user
                 - -d
                 - devops_db
-            initialDelaySeconds: 15
+            initialDelaySeconds: 20
             periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:

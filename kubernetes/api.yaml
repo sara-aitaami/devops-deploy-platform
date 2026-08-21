@@ -16,8 +16,10 @@ spec:
       containers:
         - name: devops-api
           image: ghcr.io/sara-aitaami/devops-deploy-platform:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
+
           env:
             - name: DB_HOST
               valueFrom:
@@ -48,18 +50,32 @@ spec:
                 secretKeyRef:
                   name: api-secret
                   key: DB_PASSWORD
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
           readinessProbe:
             httpGet:
               path: /
               port: 8000
             initialDelaySeconds: 5
             periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+
           livenessProbe:
             httpGet:
               path: /
               port: 8000
             initialDelaySeconds: 15
             periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
 
 ---
 
@@ -74,4 +90,18 @@ spec:
   ports:
     - port: 8000
       targetPort: 8000
-  type: ClusterIP
+  type: NodePort
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: devops-api
+  namespace: devops
+spec:
+  selector:
+    app: devops-api
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30080
+  type: NodePort

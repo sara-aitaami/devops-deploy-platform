@@ -101,3 +101,25 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  kubernetes-validation:
+    runs-on: ubuntu-latest
+    needs: docker
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.34.1"
+
+      - name: Validate Kubernetes manifests
+        run: |
+          kubectl apply --dry-run=client -f kubernetes/namespace.yaml
+          kubectl apply --dry-run=client -f kubernetes/postgres-secret.yaml
+          kubectl apply --dry-run=client -f kubernetes/api-config.yaml
+          kubectl apply --dry-run=client -f kubernetes/api-secret.yaml
+          kubectl apply --dry-run=client -f kubernetes/postgres.yaml
+          kubectl apply --dry-run=client -f kubernetes/api.yaml
