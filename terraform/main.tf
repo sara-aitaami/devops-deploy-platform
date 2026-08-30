@@ -1,12 +1,18 @@
+resource "kubernetes_namespace" "devops" {
+  metadata {
+    name = var.namespace
+  }
+}
+
 resource "kubernetes_config_map" "terraform_info" {
   metadata {
     name      = "terraform-info"
-    namespace = "devops"
+    namespace = kubernetes_namespace.devops.metadata[0].name
   }
 
   data = {
     managed_by  = "terraform"
-    project     = "devops-deploy-platform"
+    project     = var.project_name
     phase       = "phase-e"
     environment = var.environment
   }
