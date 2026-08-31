@@ -28,3 +28,8 @@ crash.*.log
 
 # Terraform variables
 *.tfvars
+
+# Terraform plan files
+tfplan
+*.tfplan
+*-tfplan
