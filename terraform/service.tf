@@ -12,9 +12,9 @@ resource "kubernetes_service" "devops_api" {
     }
 
     port {
-      port        = 8000
-      target_port = 8000
-      node_port   = 30080
+      port        = var.api_port
+      target_port = var.api_port
+      node_port   = var.api_node_port
     }
 
     type = "NodePort"
