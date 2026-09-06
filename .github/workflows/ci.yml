@@ -121,3 +121,33 @@ jobs:
             -strict \
             -summary \
             kubernetes/*.yaml
+
+  terraform-validation:
+    runs-on: ubuntu-latest
+    needs: kubernetes-validation
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.16.1"
+          terraform_wrapper: false
+
+      - name: Terraform version
+        run: terraform version
+
+      - name: Terraform format check
+        run: terraform fmt -check
+
+      - name: Terraform init without backend
+        run: terraform init -backend=false -input=false
+
+      - name: Terraform validate
+        run: terraform validate -no-color
