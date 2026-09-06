@@ -67,6 +67,7 @@ GitHub Actions
           Kubernetes
           ├── FastAPI
           └── PostgreSQL
+```
 
 ---
 
@@ -179,6 +180,49 @@ La persistance des données PostgreSQL a également été vérifiée en supprima
 
 ---
 
+## Phase E — Infrastructure as Code avec Terraform
+
+La Phase E permet de gérer progressivement l'infrastructure Kubernetes du projet avec Terraform.
+
+Les éléments mis en place comprennent :
+
+- le provider Kubernetes ;
+- la gestion du namespace Kubernetes ;
+- la gestion d'un ConfigMap ;
+- la gestion du Service FastAPI ;
+- les variables Terraform ;
+- les validations des variables ;
+- les outputs Terraform ;
+- l'import de ressources Kubernetes existantes ;
+- la gestion du Terraform state ;
+- le stockage distant du state avec HCP Terraform ;
+- la séparation des ressources Terraform par fichiers ;
+- la validation Terraform dans GitHub Actions.
+
+Le state Terraform est stocké dans HCP Terraform, tandis que les opérations Terraform sont exécutées localement sur l'environnement WSL contre le cluster Kubernetes Docker Desktop.
+
+La configuration Terraform utilise notamment :
+
+```text
+terraform/
+├── backend.tf
+├── configmap.tf
+├── namespace.tf
+├── outputs.tf
+├── provider.tf
+├── service.tf
+├── variables.tf
+├── versions.tf
+└── terraform.tfvars.example
+```
+Les ressources actuellement gérées par Terraform sont :
+
+- le namespace `devops` ;
+- le ConfigMap `terraform-info` ;
+- le Service `devops-api`.
+
+---
+
 ## CI/CD et Kubernetes
 
 La chaîne actuelle du projet est :
@@ -187,17 +231,24 @@ La chaîne actuelle du projet est :
 Git push
    ↓
 GitHub Actions
-   ├── Tests
+   ├── Tests backend
    ├── Build Docker
    ├── Publication GHCR
-   └── Validation des manifests Kubernetes
+   ├── Validation des manifests Kubernetes
+   └── Validation de la configuration Terraform
             ↓
      Déploiement Kubernetes local
-
-La validation des manifests Kubernetes dans GitHub Actions est réalisée avec Kubeconform et ne nécessite pas d'accès au cluster Kubernetes local.
-
-Le déploiement sur le cluster Kubernetes local est actuellement réalisé séparément à l'aide de kubectl.
 ```
+
+La validation des manifests Kubernetes est réalisée avec Kubeconform et ne nécessite pas d'accès au cluster Kubernetes local.
+
+La validation Terraform utilise Terraform 1.16.1 et vérifie notamment le formatage et la validité de la configuration sans initialiser le backend distant.
+
+Le state Terraform est stocké dans HCP Terraform.
+
+Les opérations Terraform nécessitant un accès au cluster Kubernetes restent actuellement exécutées localement depuis l'environnement WSL.
+
+Le déploiement Kubernetes local est actuellement réalisé avec kubectl.
 
 ---
 
@@ -234,12 +285,17 @@ PersistentVolumeClaim ;
 readiness probes ;
 liveness probes ;
 resource requests et limits ;
-validation des manifests Kubernetes dans la CI.
+validation des manifests Kubernetes dans la CI ;
+Terraform ;
+HCP Terraform ;
+Terraform state distant ;
+validation Terraform dans GitHub Actions ;
+variables et outputs Terraform.
 
 Les prochaines étapes du projet concernent notamment :
 
-Terraform ;
 monitoring ;
 observabilité ;
 amélioration du déploiement ;
-finalisation de l'infrastructure.
+sécurisation et industrialisation de l'infrastructure ;
+amélioration de la stratégie de déploiement.
