@@ -95,10 +95,12 @@ devops-project/
 │   ├── api.yaml
 │   ├── namespace.yaml
 │   ├── postgres-secret.yaml
-│   └── postgres.yaml
+│   ├── postgres.yaml
+│   └── monitoring/
+│       ├── api-servicemonitor.yaml
+│       └── postgres-exporter-servicemonitor.yaml
 │
 ├── terraform/
-├── monitoring/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml
@@ -223,6 +225,73 @@ Les ressources actuellement gérées par Terraform sont :
 
 ---
 
+## Phase F — Monitoring & Observabilité
+
+La plateforme intègre une stack d'observabilité basée sur Prometheus et Grafana.
+
+### Instrumentation de l'API
+
+L'API FastAPI expose `/metrics` grâce à
+`prometheus-fastapi-instrumentator`.
+
+Les métriques HTTP permettent notamment de suivre :
+
+- le nombre de requêtes ;
+- les codes HTTP ;
+- le débit de requêtes ;
+- la latence des requêtes.
+
+### Prometheus
+
+Prometheus est déployé avec `kube-prometheus-stack`.
+
+L'API est découverte via un `ServiceMonitor` Kubernetes.
+
+PostgreSQL est observé via `postgres_exporter`, lui-même découvert par un `ServiceMonitor`.
+
+### Grafana
+
+Trois dashboards ont été configurés :
+
+- `API - Disponibilité`
+- `Kubernetes - Supervision`
+- `PostgreSQL - Supervision`
+
+Ils permettent de visualiser la disponibilité, le trafic HTTP,
+les erreurs, la latence, l'état Kubernetes et les métriques PostgreSQL.
+
+### Health checks
+
+L'API expose :
+
+- `/health` pour la liveness ;
+- `/ready` pour la readiness, avec vérification de PostgreSQL.
+
+Kubernetes utilise ces endpoints avec des `livenessProbe`
+et `readinessProbe`.
+
+### Logs
+
+Les logs applicatifs FastAPI sont accessibles via Kubernetes avec
+`kubectl logs`.
+
+Des messages applicatifs sont également générés pour les événements
+importants, notamment les erreurs métier et les contrôles de santé.
+
+### Alerting
+
+Grafana Alerting surveille notamment :
+
+- l'indisponibilité de l'API ;
+- l'indisponibilité de PostgreSQL ;
+- un taux élevé de réponses HTTP 5xx ;
+- l'absence de pod API Ready.
+
+Un contact point Webhook a été configuré pour tester la livraison
+des notifications.
+
+---
+
 ## CI/CD et Kubernetes
 
 La chaîne actuelle du projet est :
@@ -270,32 +339,46 @@ Les tests sont exécutés localement et dans GitHub Actions.
 
 Les éléments suivants sont actuellement fonctionnels :
 
-backend FastAPI ;
-PostgreSQL ;
-Docker ;
-Docker Compose ;
-tests automatisés ;
-GitHub Actions ;
-build Docker automatique ;
-publication GHCR ;
-Kubernetes ;
-ConfigMaps ;
-Secrets ;
-PersistentVolumeClaim ;
-readiness probes ;
-liveness probes ;
-resource requests et limits ;
-validation des manifests Kubernetes dans la CI ;
-Terraform ;
-HCP Terraform ;
-Terraform state distant ;
-validation Terraform dans GitHub Actions ;
-variables et outputs Terraform.
+- backend FastAPI ;
+- PostgreSQL ;
+- Docker ;
+- Docker Compose ;
+- tests automatisés ;
+- GitHub Actions ;
+- build Docker automatique ;
+- publication GHCR ;
+- Kubernetes ;
+- ConfigMaps ;
+- Secrets ;
+- PersistentVolumeClaim ;
+- readiness probes ;
+- liveness probes ;
+- `/health` et `/ready` ;
+- Prometheus ;
+- Grafana ;
+- Alertmanager ;
+- `prometheus-fastapi-instrumentator` ;
+- `postgres_exporter` ;
+- ServiceMonitors pour l'API et PostgreSQL ;
+- dashboards Grafana API, Kubernetes et PostgreSQL ;
+- règles d'alerting ;
+- contact point Webhook ;
+- validation des manifests Kubernetes dans la CI ;
+- Terraform ;
+- HCP Terraform ;
+- Terraform state distant ;
+- validation Terraform dans GitHub Actions.
 
-Les prochaines étapes du projet concernent notamment :
+---
 
-monitoring ;
-observabilité ;
-amélioration du déploiement ;
-sécurisation et industrialisation de l'infrastructure ;
-amélioration de la stratégie de déploiement.
+## Pistes d'amélioration
+
+Le projet peut ensuite évoluer vers une industrialisation plus poussée, par exemple :
+
+- centralisation des logs avec une solution dédiée ;
+- stratégie GitOps ;
+- gestion plus avancée des secrets ;
+- stratégie de déploiement progressive ;
+- autoscaling ;
+- exposition via Ingress ;
+- supervision et alerting plus avancés.

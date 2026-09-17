@@ -117,10 +117,13 @@ jobs:
 
       - name: Validate Kubernetes manifests
         run: |
-          kubeconform \
-            -strict \
-            -summary \
-            kubernetes/*.yaml
+          find kubernetes \
+            -type f \
+            \( -name "*.yaml" -o -name "*.yml" \) \
+            -print0 \
+            | xargs -0 kubeconform \
+                -strict \
+                -summary
 
   terraform-validation:
     runs-on: ubuntu-latest

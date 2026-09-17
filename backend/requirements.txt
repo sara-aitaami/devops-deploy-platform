@@ -2,3 +2,4 @@ fastapi
 uvicorn[standard]
 SQLAlchemy
 psycopg[binary]
+prometheus-fastapi-instrumentator==8.1.0

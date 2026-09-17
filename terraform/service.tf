@@ -4,6 +4,10 @@ resource "kubernetes_service" "devops_api" {
   metadata {
     name      = "devops-api"
     namespace = kubernetes_namespace.devops.metadata[0].name
+
+    labels = {
+      app = "devops-api"
+    }
   }
 
   spec {
@@ -12,6 +16,7 @@ resource "kubernetes_service" "devops_api" {
     }
 
     port {
+      name        = "http"
       port        = var.api_port
       target_port = var.api_port
       node_port   = var.api_node_port

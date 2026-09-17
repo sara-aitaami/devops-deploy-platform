@@ -1,7 +1,10 @@
+import logging
 from typing import List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy import select
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from .database import engine
@@ -12,10 +15,36 @@ from .schemas import (
     ApplicationUpdate,
 )
 
-from fastapi import FastAPI, HTTPException
+logger = logging.getLogger("devops-api")
 
 app = FastAPI(title="DevOps Deploy Platform API")
 
+Instrumentator().instrument(app).expose(app)
+
+@app.get("/health")
+def health():
+    logger.info("Health check OK")
+    return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready():
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+
+        logger.info("Readiness check OK - database available")
+        return {"status": "ready"}
+
+    except Exception as exc:
+        logger.error(
+            "Readiness check failed - database unavailable",
+            exc_info=True,
+        )
+        raise HTTPException(
+            status_code=503,
+            detail="Database is not ready",
+        ) from exc
 
 @app.get("/")
 def root():
@@ -48,6 +77,10 @@ def get_application(application_id: int):
         application = session.get(Application, application_id)
 
         if application is None:
+            logger.warning(
+                "Application not found - application_id=%s",
+                application_id,
+            )
             raise HTTPException(
                 status_code=404,
                 detail="Application not found"
