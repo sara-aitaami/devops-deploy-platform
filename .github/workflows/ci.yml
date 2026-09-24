@@ -71,8 +71,12 @@ jobs:
           python -m pytest backend/tests/test_api.py -v
 
   docker:
-    runs-on: ubuntu-latest
     needs: test
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout repository
@@ -85,22 +89,32 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=raw,value=latest
-            type=sha
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ghcr.io/sara-aitaami/devops-deploy-platform:${{ github.sha }} \
+            ./backend
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
-          context: ./backend
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          image-ref: ghcr.io/sara-aitaami/devops-deploy-platform:${{ github.sha }}
+          format: table
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+
+      - name: Tag Docker image as latest
+        run: |
+          docker tag \
+            ghcr.io/sara-aitaami/devops-deploy-platform:${{ github.sha }} \
+            ghcr.io/sara-aitaami/devops-deploy-platform:latest
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/sara-aitaami/devops-deploy-platform:${{ github.sha }}
+          docker push ghcr.io/sara-aitaami/devops-deploy-platform:latest
 
   kubernetes-validation:
     runs-on: ubuntu-latest
