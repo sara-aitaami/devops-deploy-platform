@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: devops_db
       POSTGRES_USER: devops_user
-      POSTGRES_PASSWORD: devops_password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
     container_name: devops-api
     environment:
-        DATABASE_URL: postgresql+psycopg://devops_user:devops_password@postgres:5432/devops_db
+        DATABASE_URL: postgresql+psycopg://devops_user:${POSTGRES_PASSWORD}@postgres:5432/devops_db
     ports:
       - "8000:8000"
     depends_on:

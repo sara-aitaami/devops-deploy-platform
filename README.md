@@ -91,10 +91,8 @@ devops-project/
 │
 ├── kubernetes/
 │   ├── api-config.yaml
-│   ├── api-secret.yaml
 │   ├── api.yaml
 │   ├── namespace.yaml
-│   ├── postgres-secret.yaml
 │   ├── postgres.yaml
 │   └── monitoring/
 │       ├── api-servicemonitor.yaml
@@ -106,6 +104,9 @@ devops-project/
 │       └── ci.yml
 │
 ├── docs/
+│
+├── .env.example
+├── .gitignore
 └── README.md
 ```
 
@@ -292,6 +293,53 @@ des notifications.
 
 ---
 
+## Phase G — Sécurité
+
+### Scan des images Docker
+
+Les images Docker sont analysées avec Trivy dans GitHub Actions avant leur publication sur GitHub Container Registry.
+
+Le scan couvre :
+- les paquets du système ;
+- les bibliothèques Python ;
+- les vulnérabilités `HIGH` et `CRITICAL`.
+
+Les vulnérabilités pour lesquelles aucun correctif n'est disponible sont ignorées avec `ignore-unfixed`.
+
+Le pipeline échoue si une vulnérabilité `HIGH` ou `CRITICAL` corrigible est détectée.
+
+La chaîne Docker est donc :
+
+```text
+Build Docker
+    ↓
+Scan Trivy
+    ↓
+Tag de l'image
+    ↓
+Publication GHCR
+```
+
+### Gestion des secrets
+
+Les credentials sensibles ne sont plus stockés dans les manifests Kubernetes versionnés.
+
+Les Secrets Kubernetes `api-secret` et `postgres-secret` sont créés séparément avec `kubectl` et injectés dans les workloads.
+
+Les variables locales utilisées avec Docker Compose sont stockées dans un fichier `.env` ignoré par Git.
+
+Un fichier `.env.example` est fourni pour documenter les variables nécessaires sans contenir de credential réel.
+
+Le backend ne possède plus de mot de passe PostgreSQL par défaut dans le code : `DB_PASSWORD` doit être fourni explicitement lorsque `DATABASE_URL` n'est pas utilisé.
+
+Les fichiers Terraform sensibles (`*.tfvars`, `*.tfstate`) ainsi que les fichiers `.env` sont exclus du suivi Git.
+
+Les credentials de test utilisés dans GitHub Actions correspondent à l'environnement PostgreSQL temporaire de la CI et ne sont pas utilisés comme secrets de production.
+
+Les ressources Kubernetes continuent d'utiliser les `Secret` via `secretKeyRef`, tandis que les Secrets eux-mêmes restent hors du dépôt Git.
+
+---
+
 ## CI/CD et Kubernetes
 
 La chaîne actuelle du projet est :
@@ -302,6 +350,7 @@ Git push
 GitHub Actions
    ├── Tests backend
    ├── Build Docker
+   ├── Scan de vulnérabilités avec Trivy
    ├── Publication GHCR
    ├── Validation des manifests Kubernetes
    └── Validation de la configuration Terraform
@@ -310,6 +359,8 @@ GitHub Actions
 ```
 
 La validation des manifests Kubernetes est réalisée avec Kubeconform et ne nécessite pas d'accès au cluster Kubernetes local.
+
+Le scan de sécurité des images Docker est réalisé avec Trivy avant leur publication sur GitHub Container Registry.
 
 La validation Terraform utilise Terraform 1.16.1 et vérifie notamment le formatage et la validité de la configuration sans initialiser le backend distant.
 
@@ -346,10 +397,12 @@ Les éléments suivants sont actuellement fonctionnels :
 - tests automatisés ;
 - GitHub Actions ;
 - build Docker automatique ;
+- scan des images Docker avec Trivy ;
 - publication GHCR ;
 - Kubernetes ;
 - ConfigMaps ;
-- Secrets ;
+- Secrets Kubernetes gérés hors Git ;
+- fichier .env.example ;
 - PersistentVolumeClaim ;
 - readiness probes ;
 - liveness probes ;
@@ -377,7 +430,7 @@ Le projet peut ensuite évoluer vers une industrialisation plus poussée, par ex
 
 - centralisation des logs avec une solution dédiée ;
 - stratégie GitOps ;
-- gestion plus avancée des secrets ;
+- intégration d'un gestionnaire de secrets externe ;
 - stratégie de déploiement progressive ;
 - autoscaling ;
 - exposition via Ingress ;
