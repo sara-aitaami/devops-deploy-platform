@@ -16,6 +16,9 @@ spec:
         app: devops-api
 
     spec:
+      serviceAccountName: devops-api
+      automountServiceAccountToken: false
+
       containers:
         - name: devops-api
           image: ghcr.io/sara-aitaami/devops-deploy-platform:latest

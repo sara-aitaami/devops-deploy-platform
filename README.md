@@ -45,6 +45,9 @@ Les technologies sont intégrées progressivement au cours du projet.
 - PostgreSQL
 - FastAPI
 - Terraform
+- Prometheus
+- Grafana
+- Trivy
 - Monitoring
 
 ---
@@ -91,6 +94,7 @@ devops-project/
 │
 ├── kubernetes/
 │   ├── api-config.yaml
+│   ├── api-serviceaccount.yaml
 │   ├── api.yaml
 │   ├── namespace.yaml
 │   ├── postgres.yaml
@@ -338,6 +342,18 @@ Les credentials de test utilisés dans GitHub Actions correspondent à l'environ
 
 Les ressources Kubernetes continuent d'utiliser les `Secret` via `secretKeyRef`, tandis que les Secrets eux-mêmes restent hors du dépôt Git.
 
+### RBAC Kubernetes
+
+L'API FastAPI dispose d'un `ServiceAccount` Kubernetes dédié nommé `devops-api`.
+
+L'application n'ayant pas besoin d'interagir avec l'API Kubernetes, aucun `Role`, `RoleBinding` ou `ClusterRoleBinding` ne lui est attribué.
+
+Le montage automatique du token Kubernetes est également désactivé avec `automountServiceAccountToken: false`.
+
+Cette configuration applique le principe du moindre privilège : le Pod FastAPI possède une identité Kubernetes dédiée mais aucune permission applicative sur les ressources Kubernetes.
+
+Les permissions ont été vérifiées avec `kubectl auth can-i` pour les Pods, Secrets et Deployments, avec un résultat `no` dans les trois cas.
+
 ---
 
 ## CI/CD et Kubernetes
@@ -420,7 +436,10 @@ Les éléments suivants sont actuellement fonctionnels :
 - Terraform ;
 - HCP Terraform ;
 - Terraform state distant ;
-- validation Terraform dans GitHub Actions.
+- validation Terraform dans GitHub Actions;
+- ServiceAccount Kubernetes dédié pour FastAPI ;
+- principe du moindre privilège appliqué ;
+- token Kubernetes non monté automatiquement ;
 
 ---
 
