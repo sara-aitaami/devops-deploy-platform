@@ -19,10 +19,25 @@ spec:
       serviceAccountName: devops-api
       automountServiceAccountToken: false
 
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+
       containers:
         - name: devops-api
           image: ghcr.io/sara-aitaami/devops-deploy-platform:latest
           imagePullPolicy: Always
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
 
           ports:
             - containerPort: 8000
