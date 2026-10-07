@@ -1,75 +1,123 @@
 # DevOps Deploy Platform
 
-## Présentation
+Plateforme DevOps de portfolio reproduisant progressivement une chaîne de déploiement moderne autour de **FastAPI, PostgreSQL, Docker, GitHub Actions, Kubernetes, Terraform, Prometheus, Grafana et Trivy**.
 
-**DevOps Deploy Platform** est un projet de portfolio conçu pour reproduire une chaîne DevOps moderne utilisée en entreprise.
-
-L'objectif est de construire progressivement une plateforme de déploiement moderne en utilisant les outils et les bonnes pratiques employés en entreprise.
-
-Chaque étape du projet est réalisée manuellement afin de comprendre le rôle de chaque technologie avant de les intégrer dans une infrastructure complète.
+Le projet est construit par étapes afin de comprendre chaque couche avant de l'intégrer dans une chaîne complète : développement, tests, conteneurisation, CI/CD, orchestration, Infrastructure as Code, observabilité et sécurité.
 
 ---
 
-## Objectif du projet
+## Présentation
 
-Ce projet a pour objectif de démontrer mes compétences en :
+**DevOps Deploy Platform** est un projet de portfolio réalisé dans une démarche orientée **automatisation, fiabilité, observabilité et sécurité**.
 
-- Linux
-- Git & GitHub
-- Docker
-- Docker Compose
-- GitHub Actions
+L'objectif est de démontrer la capacité à construire et sécuriser une petite plateforme applicative de bout en bout, depuis le code jusqu'au runtime Kubernetes.
+
+Le projet est exécuté localement dans **WSL** avec **Docker Desktop et Kubernetes**, tandis que le state Terraform est conservé à distance dans **HCP Terraform**.
+
+---
+
+## Objectif portfolio
+
+Ce dépôt a vocation à servir de projet de portfolio pour illustrer une démarche DevOps complète :
+
+```text
+Développer
+   ↓
+Tester
+   ↓
+Conteneuriser
+   ↓
+Automatiser
+   ↓
+Déployer
+   ↓
+Observer
+   ↓
+Sécuriser
+```
+
+L'intérêt du projet réside autant dans les technologies utilisées que dans la progression vers une chaîne cohérente, automatisée et sécurisée.
+
+---
+
+## Compétences démontrées
+
+Ce projet met en pratique :
+
+- Linux et environnement WSL
+- Git et GitHub
+- développement d'une API FastAPI
+- PostgreSQL et SQLAlchemy
+- Docker et Docker Compose
+- CI/CD avec GitHub Actions
+- GitHub Container Registry (GHCR)
 - Kubernetes
-- PostgreSQL
-- FastAPI
-- CI/CD
-- Infrastructure as Code
-- Bonnes pratiques DevOps
-
-À terme, ce dépôt constituera un projet de portfolio destiné à illustrer mes compétences lors de recherches d'alternance ou d'opportunités professionnelles.
+- Infrastructure as Code avec Terraform
+- HCP Terraform et gestion du state
+- observabilité avec Prometheus et Grafana
+- alerting avec Grafana Alerting
+- analyse des vulnérabilités avec Trivy
+- détection des secrets avec Gitleaks
+- RBAC et principe du moindre privilège
+- durcissement des conteneurs et du runtime Kubernetes
 
 ---
 
 ## Technologies
 
-Les technologies sont intégrées progressivement au cours du projet.
-
-- Linux
-- Git
-- GitHub
-- Docker
-- Docker Compose
-- GitHub Actions
-- GitHub Container Registry (GHCR)
-- Kubernetes
-- PostgreSQL
-- FastAPI
-- Terraform
-- Prometheus
-- Grafana
-- Trivy
-- Monitoring
+| Domaine | Technologies |
+|---|---|
+| Backend | FastAPI, Python, SQLAlchemy |
+| Base de données | PostgreSQL |
+| Conteneurisation | Docker, Docker Compose |
+| CI/CD | GitHub Actions |
+| Registry | GitHub Container Registry (GHCR) |
+| Orchestration | Kubernetes |
+| Infrastructure as Code | Terraform, HCP Terraform |
+| Monitoring | Prometheus, Grafana, Alertmanager |
+| Exporters / instrumentation | prometheus-fastapi-instrumentator, postgres_exporter |
+| Sécurité | Trivy, Gitleaks, Kubernetes SecurityContext, RBAC |
+| Validation | pytest, Kubeconform, Terraform validation |
 
 ---
 
-## Architecture du projet
+## Architecture
 
-La plateforme suit progressivement cette chaîne :
+La chaîne globale du projet est structurée ainsi :
 
 ```text
-Développement
-     ↓
-Git & GitHub
-     ↓
-GitHub Actions
-     ├── Tests automatiques
-     ├── Build Docker
-     ├── Publication de l'image sur GHCR
-     └── Validation des manifests Kubernetes
-              ↓
-          Kubernetes
-          ├── FastAPI
-          └── PostgreSQL
+                    Développement
+                         │
+                         ▼
+                    Git & GitHub
+                         │
+                         ▼
+                 GitHub Actions
+              ┌──────────┼───────────┐
+              │          │           │
+              ▼          ▼           ▼
+            Tests      Docker     Validations
+                         │          Kubeconform
+                         ▼          Terraform
+                       Trivy
+                         │
+              ┌──────────┴──────────┐
+              │                     │
+         Pull Request          push sur main
+              │                     │
+              ▼                     ▼
+       validation complète      Publication GHCR
+                                    │
+                                    ▼
+                              Kubernetes local
+                               ┌──────┴──────┐
+                               │             │
+                               ▼             ▼
+                            FastAPI      PostgreSQL
+                               │             │
+                               └──────┬──────┘
+                                      ▼
+                            Prometheus / Grafana
 ```
 
 ---
@@ -103,12 +151,21 @@ devops-project/
 │       └── postgres-exporter-servicemonitor.yaml
 │
 ├── terraform/
+│   ├── backend.tf
+│   ├── configmap.tf
+│   ├── namespace.tf
+│   ├── outputs.tf
+│   ├── provider.tf
+│   ├── service.tf
+│   ├── variables.tf
+│   ├── versions.tf
+│   └── terraform.tfvars.example
+│
 ├── .github/
 │   └── workflows/
 │       └── ci.yml
 │
 ├── docs/
-│
 ├── .env.example
 ├── .gitignore
 └── README.md
@@ -116,99 +173,57 @@ devops-project/
 
 ---
 
-## Phase A — Fondations du projet
+## Progression du projet
 
-La première phase a permis de mettre en place les bases du projet :
+### Phase A — Fondations
 
-Linux et environnement de développement
-Git et GitHub
-organisation du dépôt
-première documentation
+Mise en place de l'environnement Linux/WSL, de Git/GitHub, de l'organisation du dépôt et de la première documentation.
 
----
+### Phase B — Backend et base de données
 
-## Phase B — Backend et base de données
+Création de l'API FastAPI connectée à PostgreSQL avec SQLAlchemy.
 
-Le backend repose sur FastAPI et communique avec une base PostgreSQL.
+L'API expose notamment des opérations CRUD sur les applications : création, lecture, modification et suppression.
 
-L'API expose notamment des opérations CRUD sur les applications :
+### Phase C — CI/CD
 
-création ;
-lecture ;
-modification ;
-suppression.
+Mise en place d'une première chaîne GitHub Actions comprenant :
 
-Le backend utilise SQLAlchemy pour communiquer avec PostgreSQL.
+- installation des dépendances ;
+- démarrage d'un PostgreSQL de test ;
+- initialisation de la base ;
+- tests d'intégration PostgreSQL ;
+- tests API avec pytest ;
+- build de l'image Docker ;
+- publication sur GHCR ;
+- validation des manifests Kubernetes avec Kubeconform.
 
----
+Image publiée :
 
-## Phase C — CI/CD
-
-La Phase C a permis de mettre en place une première chaîne CI/CD professionnelle.
-
-Le pipeline GitHub Actions réalise automatiquement :
-
-l'installation des dépendances ;
-le démarrage d'un service PostgreSQL de test ;
-l'initialisation de la base de données ;
-les tests d'intégration PostgreSQL ;
-les tests API avec pytest ;
-la construction de l'image Docker ;
-la publication automatique de l'image sur GitHub Container Registry ;
-la validation des manifests Kubernetes avec Kubeconform.
-
-L'image Docker publiée est disponible sur :
-
+```text
 ghcr.io/sara-aitaami/devops-deploy-platform
+```
 
----
+### Phase D — Kubernetes
 
-## Phase D — Kubernetes
+Déploiement de la plateforme sur un cluster Kubernetes local avec :
 
-La Phase D permet de déployer la plateforme sur un cluster Kubernetes local.
+- namespace dédié ;
+- Deployment FastAPI ;
+- Deployment PostgreSQL ;
+- Services FastAPI et PostgreSQL ;
+- PersistentVolumeClaim PostgreSQL ;
+- ConfigMaps et Secrets ;
+- readiness et liveness probes ;
+- resource requests et limits.
 
-Les ressources Kubernetes mises en place comprennent notamment :
+La persistance PostgreSQL a été vérifiée après suppression puis recréation du Pod.
 
-un namespace dédié ;
-un Deployment FastAPI ;
-un Deployment PostgreSQL ;
-un Service FastAPI ;
-un Service PostgreSQL ;
-un PersistentVolumeClaim pour PostgreSQL ;
-des ConfigMaps ;
-des Secrets ;
-des readiness probes ;
-des liveness probes ;
-des resource requests et limits.
+### Phase E — Infrastructure as Code avec Terraform
 
-L'application FastAPI utilise le Service Kubernetes postgres pour communiquer avec PostgreSQL.
+Gestion progressive de l'infrastructure Kubernetes avec Terraform.
 
-La persistance des données PostgreSQL a également été vérifiée en supprimant puis en recréant le Pod PostgreSQL sans perdre les données stockées sur le volume persistant.
-
----
-
-## Phase E — Infrastructure as Code avec Terraform
-
-La Phase E permet de gérer progressivement l'infrastructure Kubernetes du projet avec Terraform.
-
-Les éléments mis en place comprennent :
-
-- le provider Kubernetes ;
-- la gestion du namespace Kubernetes ;
-- la gestion d'un ConfigMap ;
-- la gestion du Service FastAPI ;
-- les variables Terraform ;
-- les validations des variables ;
-- les outputs Terraform ;
-- l'import de ressources Kubernetes existantes ;
-- la gestion du Terraform state ;
-- le stockage distant du state avec HCP Terraform ;
-- la séparation des ressources Terraform par fichiers ;
-- la validation Terraform dans GitHub Actions.
-
-Le state Terraform est stocké dans HCP Terraform, tandis que les opérations Terraform sont exécutées localement sur l'environnement WSL contre le cluster Kubernetes Docker Desktop.
-
-La configuration Terraform utilise notamment :
+La configuration comprend notamment :
 
 ```text
 terraform/
@@ -222,230 +237,274 @@ terraform/
 ├── versions.tf
 └── terraform.tfvars.example
 ```
-Les ressources actuellement gérées par Terraform sont :
 
-- le namespace `devops` ;
-- le ConfigMap `terraform-info` ;
-- le Service `devops-api`.
+Ressources actuellement gérées par Terraform :
 
----
+- namespace `devops` ;
+- ConfigMap `terraform-info` ;
+- Service `devops-api`.
 
-## Phase F — Monitoring & Observabilité
+Le state est stocké dans **HCP Terraform**. Les opérations Terraform nécessitant l'accès au cluster restent exécutées localement depuis WSL.
 
-La plateforme intègre une stack d'observabilité basée sur Prometheus et Grafana.
+### Phase F — Monitoring & Observabilité
 
-### Instrumentation de l'API
+Mise en place d'une stack Prometheus/Grafana pour observer la plateforme.
 
-L'API FastAPI expose `/metrics` grâce à
-`prometheus-fastapi-instrumentator`.
+**API**
 
-Les métriques HTTP permettent notamment de suivre :
+- `/metrics` avec `prometheus-fastapi-instrumentator` ;
+- suivi des requêtes, codes HTTP, débit et latence.
 
-- le nombre de requêtes ;
-- les codes HTTP ;
-- le débit de requêtes ;
-- la latence des requêtes.
+**Prometheus**
 
-### Prometheus
+- déploiement via `kube-prometheus-stack` ;
+- découverte de l'API par `ServiceMonitor` ;
+- observation de PostgreSQL via `postgres_exporter` et `ServiceMonitor`.
 
-Prometheus est déployé avec `kube-prometheus-stack`.
+**Grafana**
 
-L'API est découverte via un `ServiceMonitor` Kubernetes.
-
-PostgreSQL est observé via `postgres_exporter`, lui-même découvert par un `ServiceMonitor`.
-
-### Grafana
-
-Trois dashboards ont été configurés :
+Dashboards configurés :
 
 - `API - Disponibilité`
 - `Kubernetes - Supervision`
 - `PostgreSQL - Supervision`
 
-Ils permettent de visualiser la disponibilité, le trafic HTTP,
-les erreurs, la latence, l'état Kubernetes et les métriques PostgreSQL.
-
-### Health checks
-
-L'API expose :
+**Health checks**
 
 - `/health` pour la liveness ;
-- `/ready` pour la readiness, avec vérification de PostgreSQL.
+- `/ready` pour la readiness avec vérification de PostgreSQL.
 
-Kubernetes utilise ces endpoints avec des `livenessProbe`
-et `readinessProbe`.
+**Alerting**
 
-### Logs
-
-Les logs applicatifs FastAPI sont accessibles via Kubernetes avec
-`kubectl logs`.
-
-Des messages applicatifs sont également générés pour les événements
-importants, notamment les erreurs métier et les contrôles de santé.
-
-### Alerting
-
-Grafana Alerting surveille notamment :
+Règles configurées pour détecter notamment :
 
 - l'indisponibilité de l'API ;
 - l'indisponibilité de PostgreSQL ;
 - un taux élevé de réponses HTTP 5xx ;
-- l'absence de pod API Ready.
+- l'absence de Pod API Ready.
 
-Un contact point Webhook a été configuré pour tester la livraison
-des notifications.
+Un contact point Webhook a également été configuré pour tester la livraison des notifications.
 
----
+### Phase G — Sécurité
 
-## Phase G — Sécurité
+La sécurité est traitée en défense en profondeur.
 
-### Scan des images Docker
+#### G1 — Scan des images Docker
 
-Les images Docker sont analysées avec Trivy dans GitHub Actions avant leur publication sur GitHub Container Registry.
+Trivy analyse les paquets système et bibliothèques Python de l'image Docker pour les vulnérabilités `HIGH` et `CRITICAL`.
 
-Le scan couvre :
-- les paquets du système ;
-- les bibliothèques Python ;
-- les vulnérabilités `HIGH` et `CRITICAL`.
+Le pipeline échoue lorsqu'une vulnérabilité corrigible de ce niveau est détectée ; les vulnérabilités sans correctif disponible sont ignorées avec `ignore-unfixed`.
 
-Les vulnérabilités pour lesquelles aucun correctif n'est disponible sont ignorées avec `ignore-unfixed`.
+#### G2 — Gestion des secrets
 
-Le pipeline échoue si une vulnérabilité `HIGH` ou `CRITICAL` corrigible est détectée.
+Les credentials sensibles ne sont pas stockés dans les manifests Kubernetes versionnés.
 
-La chaîne Docker est donc :
+Les Secrets Kubernetes sont créés séparément et injectés via `secretKeyRef`. Les variables locales Docker Compose sont conservées dans `.env`, ignoré par Git, avec un `.env.example` versionné.
+
+Le backend n'utilise plus de mot de passe PostgreSQL par défaut : `DB_PASSWORD` doit être fourni explicitement lorsque `DATABASE_URL` n'est pas utilisée.
+
+Les fichiers Terraform sensibles (`*.tfvars`, `*.tfstate`) et les fichiers `.env` sont exclus du suivi Git.
+
+Les credentials présents dans la CI sont limités à l'environnement PostgreSQL temporaire utilisé pour les tests automatisés.
+
+#### G3 — RBAC Kubernetes
+
+L'API dispose d'un `ServiceAccount` dédié nommé `devops-api`.
+
+Aucun `Role`, `RoleBinding` ou `ClusterRoleBinding` n'est attribué à l'application, car elle n'a pas besoin d'interagir avec l'API Kubernetes.
+
+Le montage automatique du token est désactivé avec `automountServiceAccountToken: false`.
+
+Les contrôles `kubectl auth can-i` donnent `no` pour les accès testés aux Pods, Secrets et Deployments.
+
+#### G4.1 — Audit des secrets avec Gitleaks
+
+Un audit Gitleaks du dépôt Git a porté sur 31 commits et n'a détecté aucun secret selon les règles actives.
+
+Un contrôle historique séparé a toutefois montré que des credentials de démonstration utilisés par la CI avaient existé dans d'anciens commits. L'historique Git n'a pas été réécrit pendant cette phase.
+
+#### G4.2 — Durcissement de GitHub Actions
+
+Les permissions du workflow suivent le principe du moindre privilège :
+
+```yaml
+permissions:
+  contents: read
+```
+
+Le job Docker ajoute uniquement :
+
+```yaml
+permissions:
+  contents: read
+  packages: write
+```
+
+Les actions sont épinglées sur des SHA complets et la publication GHCR est autorisée uniquement lors d'un `push` sur `main`.
+
+Les Pull Requests exécutent les contrôles de validation sans publier d'image sur GHCR.
+
+#### G4.3 — Durcissement du runtime Docker et Kubernetes
+
+L'image Docker utilise un utilisateur système non privilégié :
+
+```dockerfile
+USER 10001:10001
+```
+
+Le runtime Kubernetes applique notamment :
+
+```yaml
+runAsNonRoot: true
+runAsUser: 10001
+runAsGroup: 10001
+fsGroup: 10001
+seccompProfile:
+  type: RuntimeDefault
+allowPrivilegeEscalation: false
+capabilities:
+  drop:
+    - ALL
+readOnlyRootFilesystem: true
+automountServiceAccountToken: false
+```
+
+Ces contrôles réduisent les possibilités d'escalade de privilèges et limitent l'impact potentiel d'une compromission du conteneur.
+
+#### G4.4 — Synthèse DevSecOps et validation finale
+
+La chaîne de protection est organisée ainsi :
 
 ```text
+Code / Git
+    ↓
+Gitleaks
+    ↓
+GitHub Actions durci
+    ↓
 Build Docker
     ↓
-Scan Trivy
+Trivy
     ↓
-Tag de l'image
+Image non-root
     ↓
-Publication GHCR
+Kubernetes durci
+    ↓
+RBAC minimal
+    ↓
+Validation runtime
 ```
 
-### Gestion des secrets
+Validation finale de la Phase G :
 
-Les credentials sensibles ne sont plus stockés dans les manifests Kubernetes versionnés.
-
-Les Secrets Kubernetes `api-secret` et `postgres-secret` sont créés séparément avec `kubectl` et injectés dans les workloads.
-
-Les variables locales utilisées avec Docker Compose sont stockées dans un fichier `.env` ignoré par Git.
-
-Un fichier `.env.example` est fourni pour documenter les variables nécessaires sans contenir de credential réel.
-
-Le backend ne possède plus de mot de passe PostgreSQL par défaut dans le code : `DB_PASSWORD` doit être fourni explicitement lorsque `DATABASE_URL` n'est pas utilisé.
-
-Les fichiers Terraform sensibles (`*.tfvars`, `*.tfstate`) ainsi que les fichiers `.env` sont exclus du suivi Git.
-
-Les credentials de test utilisés dans GitHub Actions correspondent à l'environnement PostgreSQL temporaire de la CI et ne sont pas utilisés comme secrets de production.
-
-Les ressources Kubernetes continuent d'utiliser les `Secret` via `secretKeyRef`, tandis que les Secrets eux-mêmes restent hors du dépôt Git.
-
-### RBAC Kubernetes
-
-L'API FastAPI dispose d'un `ServiceAccount` Kubernetes dédié nommé `devops-api`.
-
-L'application n'ayant pas besoin d'interagir avec l'API Kubernetes, aucun `Role`, `RoleBinding` ou `ClusterRoleBinding` ne lui est attribué.
-
-Le montage automatique du token Kubernetes est également désactivé avec `automountServiceAccountToken: false`.
-
-Cette configuration applique le principe du moindre privilège : le Pod FastAPI possède une identité Kubernetes dédiée mais aucune permission applicative sur les ressources Kubernetes.
-
-Les permissions ont été vérifiées avec `kubectl auth can-i` pour les Pods, Secrets et Deployments, avec un résultat `no` dans les trois cas.
+| Contrôle | Résultat |
+|---|---|
+| Gitleaks | Aucun leak détecté selon les règles actives |
+| Trivy | 0 vulnérabilité détectée sur les paquets Debian et Python analysés |
+| Kubeconform | 10 ressources valides, 0 invalide |
+| Kubernetes runtime | UID 10001, `/health` HTTP 200, non-root, seccomp RuntimeDefault, capacités supprimées, filesystem racine en lecture seule |
+| RBAC | Aucune permission applicative sur les accès testés aux Pods et Secrets |
 
 ---
 
-## CI/CD et Kubernetes
+## CI/CD
 
-La chaîne actuelle du projet est :
+Le comportement du pipeline diffère selon le contexte d'exécution :
 
 ```text
-Git push
-   ↓
-GitHub Actions
-   ├── Tests backend
-   ├── Build Docker
-   ├── Scan de vulnérabilités avec Trivy
-   ├── Publication GHCR
-   ├── Validation des manifests Kubernetes
-   └── Validation de la configuration Terraform
-            ↓
-     Déploiement Kubernetes local
+Git push / Pull Request
+          │
+          ▼
+   GitHub Actions
+          │
+   ┌──────┼───────────────┐
+   │      │               │
+ Tests  Docker       Validations
+          │          Kubeconform
+          │          Terraform
+          ▼
+        Trivy
+          │
+   ┌──────┴───────────────┐
+   │                      │
+Pull Request         push sur main
+   │                      │
+   ▼                      ▼
+Validation          Publication GHCR
+complète                  │
+                          ▼
+                    Kubernetes local
 ```
 
-La validation des manifests Kubernetes est réalisée avec Kubeconform et ne nécessite pas d'accès au cluster Kubernetes local.
+Les validations Kubernetes et Terraform sont réalisées dans la CI sans dépendre du cluster local.
 
-Le scan de sécurité des images Docker est réalisé avec Trivy avant leur publication sur GitHub Container Registry.
-
-La validation Terraform utilise Terraform 1.16.1 et vérifie notamment le formatage et la validité de la configuration sans initialiser le backend distant.
-
-Le state Terraform est stocké dans HCP Terraform.
-
-Les opérations Terraform nécessitant un accès au cluster Kubernetes restent actuellement exécutées localement depuis l'environnement WSL.
-
-Le déploiement Kubernetes local est actuellement réalisé avec kubectl.
+La validation Terraform utilise Terraform 1.16.1 et contrôle notamment le formatage et la validité de la configuration sans initialiser le backend distant.
 
 ---
 
-## Tests
+## Tests et validation
 
-Les tests automatisés du backend utilisent pytest.
+Les tests automatisés du backend utilisent **pytest**.
 
-Les tests actuels couvrent notamment :
+Les contrôles de la plateforme comprennent notamment :
 
-l'endpoint principal ;
-la récupération des applications ;
-la gestion d'une application inexistante.
+- tests API ;
+- tests d'intégration PostgreSQL ;
+- build Docker ;
+- scan Trivy ;
+- validation Kubeconform ;
+- validation Terraform ;
+- audit Gitleaks ;
+- vérification des `SecurityContext` Kubernetes ;
+- vérification de l'identité et des permissions RBAC du Pod.
 
-Les tests sont exécutés localement et dans GitHub Actions.
+La Phase G a été validée avec les résultats suivants :
+
+```text
+Gitleaks   = 0
+Trivy      = 0
+Kubeconform = 0
+```
+
+Le runtime de l'API a également été vérifié en conditions réelles avec l'UID `10001` et un endpoint `/health` retournant HTTP 200.
 
 ---
 
 ## État actuel
 
-Les éléments suivants sont actuellement fonctionnels :
+La plateforme dispose actuellement de :
 
-- backend FastAPI ;
-- PostgreSQL ;
-- Docker ;
-- Docker Compose ;
-- tests automatisés ;
-- GitHub Actions ;
-- build Docker automatique ;
-- scan des images Docker avec Trivy ;
-- publication GHCR ;
-- Kubernetes ;
-- ConfigMaps ;
-- Secrets Kubernetes gérés hors Git ;
-- fichier .env.example ;
-- PersistentVolumeClaim ;
-- readiness probes ;
-- liveness probes ;
+- une API FastAPI fonctionnelle ;
+- PostgreSQL avec persistance ;
+- Docker et Docker Compose ;
+- une CI GitHub Actions ;
+- publication d'image sur GHCR ;
+- déploiement Kubernetes local ;
+- ConfigMaps et Secrets hors Git ;
+- readiness et liveness probes ;
 - `/health` et `/ready` ;
-- Prometheus ;
-- Grafana ;
-- Alertmanager ;
-- `prometheus-fastapi-instrumentator` ;
-- `postgres_exporter` ;
-- ServiceMonitors pour l'API et PostgreSQL ;
-- dashboards Grafana API, Kubernetes et PostgreSQL ;
-- règles d'alerting ;
-- contact point Webhook ;
-- validation des manifests Kubernetes dans la CI ;
-- Terraform ;
-- HCP Terraform ;
-- Terraform state distant ;
-- validation Terraform dans GitHub Actions;
-- ServiceAccount Kubernetes dédié pour FastAPI ;
-- principe du moindre privilège appliqué ;
-- token Kubernetes non monté automatiquement ;
+- Prometheus, Grafana et Alertmanager ;
+- instrumentation FastAPI et `postgres_exporter` ;
+- ServiceMonitors API et PostgreSQL ;
+- dashboards et règles d'alerting ;
+- Terraform avec state distant HCP Terraform ;
+- validation Kubernetes et Terraform dans la CI ;
+- ServiceAccount dédié pour FastAPI ;
+- RBAC minimal et token Kubernetes non monté automatiquement ;
+- audit Gitleaks ;
+- scan Trivy ;
+- GitHub Actions durci avec permissions minimales et actions épinglées ;
+- image Docker exécutée en non-root avec l'UID `10001` ;
+- filesystem racine en lecture seule ;
+- capacités Linux supprimées ;
+- `allowPrivilegeEscalation: false` ;
+- profil seccomp `RuntimeDefault`.
 
 ---
 
-## Pistes d'amélioration
+## Limites actuelles et prochaines évolutions
 
-Le projet peut ensuite évoluer vers une industrialisation plus poussée, par exemple :
+Le projet reste volontairement focalisé sur une plateforme locale de démonstration. Les évolutions possibles incluent notamment :
 
 - centralisation des logs avec une solution dédiée ;
 - stratégie GitOps ;
@@ -454,3 +513,5 @@ Le projet peut ensuite évoluer vers une industrialisation plus poussée, par ex
 - autoscaling ;
 - exposition via Ingress ;
 - supervision et alerting plus avancés.
+
+---
