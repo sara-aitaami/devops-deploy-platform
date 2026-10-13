@@ -87,6 +87,7 @@ La chaîne globale du projet est structurée ainsi :
 
 Les diagrammes détaillés de la plateforme, du pipeline CI/CD et du runtime Kubernetes sont disponibles dans [`docs/architecture.md`](docs/architecture.md).
 
+Le guide pratique de démarrage, de vérification et de dépannage est disponible dans [`docs/guide-exploitation.md`](docs/guide-exploitation.md).
 
 ```text
                     Développement
@@ -169,7 +170,8 @@ devops-project/
 │       └── ci.yml
 │
 ├── docs/
-│   └── architecture.md
+│   ├── architecture.md
+│   └── guide-exploitation.md
 │
 ├── .env.example
 ├── .gitignore
